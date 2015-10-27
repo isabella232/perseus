@@ -8,6 +8,7 @@ _.each([
     require("./widgets/dropdown.jsx"),
     require("./widgets/example-widget.jsx"),
     require("./widgets/example-graphie-widget.jsx"),
+    require("./widgets/plotted-line-widget.jsx"),
     require("./widgets/explanation.jsx"),
     require("./widgets/expression.jsx"),
     require("./widgets/grapher.jsx"),

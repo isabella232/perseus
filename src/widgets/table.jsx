@@ -66,6 +66,7 @@ var Table = React.createClass({
             rows: defaultRows,
             columns: defaultColumns,
             answers: blankAnswers,
+            onValueChangeCallback: null,
         };
     },
 
@@ -150,6 +151,9 @@ var Table = React.createClass({
         this.props.onChange({
             answers: answers
         });
+        if (this.props.onValueChangeCallback) {
+            this.props.onValueChangeCallback(row, column, e);
+        }
     },
 
     onHeaderChange: function(index, e) {
@@ -306,7 +310,8 @@ var TableEditor = React.createClass({
             React.PropTypes.arrayOf(
                 React.PropTypes.string
             )
-        )
+        ),
+        onValueChangeCallback: React.PropTypes.func,
     },
 
     getDefaultProps: function() {
