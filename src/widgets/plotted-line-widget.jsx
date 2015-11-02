@@ -53,7 +53,6 @@ var PlottedLineWidget = React.createClass({
     },
 
     render: function() {
-console.log(this.props.lineCoords);
         return <Graphie
                 ref="graphie"
                 box={this.props.graph.box}
@@ -62,10 +61,10 @@ console.log(this.props.lineCoords);
                 setup={this.setupGraphie}>
             <MovableLine extendLine={true} >
                 <MovablePoint coord={this.props.lineCoords[0] || [-1, 0]}
-                    pointSize={5}
+                    pointSize={0}
                 />
                 <MovablePoint coord={this.props.lineCoords[1] || [1, 0]}
-                    pointSize={5}
+                    pointSize={0}
                 />
             </MovableLine>
             {this.props.pointCoords.map(function(aCoord, index) {
@@ -74,6 +73,10 @@ console.log(this.props.lineCoords);
         </Graphie>;
     },
 
+    updatePointwiseGraph: function(points) {
+        var newPath = this.savedGraphie.svgPointwisePath(points);
+        this.smoothGraph.attr({ path: newPath });
+    },
     moveLine: function(newLinePair) {
         this.change({
             lineCoords: newLinePair
@@ -110,6 +113,8 @@ console.log(this.props.lineCoords);
             unityLabels: _.pluck(gridConfig, "unityLabel")
         });
         graphie.label([0, options.range[1][1]], options.labels[1], "above");
+        this.savedGraphie = graphie;
+        this.smoothGraph = graphie.pointwise([]);
     },
 
     simpleValidate: function(rubric) {
