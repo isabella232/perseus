@@ -73,6 +73,25 @@ var PlottedLineWidget = React.createClass({
         </Graphie>;
     },
 
+    graphExpression: function(expression) {
+        if (!expression) {
+            return;
+        }
+        var expr = KAS.parse(expression);
+        if (!expr || !expr.expr) {
+            console.error("Failed to parse " + expression);
+            return;
+        }
+        var points = [];
+        for (var i = 0; i <= 400; i += 10) {
+            var yValue = expr.expr.eval({x: i});
+            if (yValue) {
+                points.push(i);
+                points.push(yValue);
+            }
+        }
+        this.updatePointwiseGraph(points);
+    },
     updatePointwiseGraph: function(points) {
         var newPath = this.savedGraphie.svgPointwisePath(points);
         this.smoothGraph.attr({ path: newPath });
