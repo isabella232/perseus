@@ -18,6 +18,28 @@ var MovableLine = Graphie.MovableLine;
 var knumber = require("kmath").number;
 var kpoint = require("kmath").point;
 
+var defaultBoxSize = 400;
+
+var propDefaults = {
+    // We want to allow our coord to be null to test if the
+    // user has interacted with this widget yet when grading it
+    coord: null,
+    pointCoords: [],
+    lineCoords: [],
+    graph: {
+        box: [defaultBoxSize, defaultBoxSize],
+        labels: ["x", "y"],
+        range: [[-10, 10], [-10, 10]],
+        step: [1, 1],
+        gridStep: [1, 1],
+        snapStep: [1, 1],
+        valid: true,
+        backgroundImage: null,
+        markings: "grid",
+        showProtractor: false
+    }
+};
+
 /**
  * This is the widget's renderer. It shows up in the right column
  * in test.html, and is what is visible to users, and where
@@ -32,44 +54,66 @@ var PlottedLineWidget = React.createClass({
     },
 
     getDefaultProps: function() {
-        return {
-            // We want to allow our coord to be null to test if the
-            // user has interacted with this widget yet when grading it
-            coord: null,
-            pointCoords: [[-8, 0], [-4, 0], [0, 0], [4, 0], [8, 0]],
-            lineCoords: [[-8, 0], [8, 0]],
-            graph: {
-                box: [400, 400],
-                labels: ["x", "y"],
-                range: [[-10, 10], [-10, 10]],
-                step: [1, 1],
-                gridStep: [1, 1],
-                valid: true,
-                backgroundImage: null,
-                markings: "grid",
-                showProtractor: false
-            }
-        };
+        return propDefaults;
     },
 
     render: function() {
-        return <Graphie
-                ref="graphie"
-                box={this.props.graph.box}
-                range={this.props.graph.range}
-                options={this.props.graph}
-                setup={this.setupGraphie}>
-            <MovableLine extendLine={true} >
+        var graphProps = {
+            ref: "graph",
+            box: this.props.box,
+            range: this.props.range,
+            labels: this.props.labels,
+            step: this.props.step,
+            gridStep: this.props.gridStep,
+            snapStep: this.props.snapStep,
+            graph: this.props.correct,
+            backgroundImage: this.props.backgroundImage,
+            markings: this.props.markings,
+            showProtractor: this.props.showProtractor,
+            showRuler: this.props.showRuler,
+            rulerLabel: this.props.rulerLabel,
+            rulerTicks: this.props.rulerTicks,
+            flexibleType: true,
+            onChange: (newProps) => {
+                var correct = this.props.correct;
+                if (correct.type === newProps.graph.type) {
+                    correct = _.extend({}, correct, newProps.graph);
+                } else {
+                    // Clear options from previous graph
+                    correct = newProps.graph;
+                }
+                this.props.onChange({correct: correct});
+            }
+        }
+        _.defaults(graphProps, propDefaults.graph);
+
+        var pointCoordComponents = null;
+        if (this.props.pointCoords.length > 0) {
+            pointCoordComponents = this.props.pointCoords.map(function(aCoord, index) {
+                return <MovablePoint key={index} coord={aCoord}/>;
+            });
+        };
+        var lineComponents = null;
+        if (this.props.lineCoords.length == 2) {
+            lineComponents = <MovableLine extendLine={true} >
                 <MovablePoint coord={this.props.lineCoords[0] || [-1, 0]}
                     pointSize={0}
                 />
                 <MovablePoint coord={this.props.lineCoords[1] || [1, 0]}
                     pointSize={0}
                 />
-            </MovableLine>
-            {this.props.pointCoords.map(function(aCoord, index) {
-                return <MovablePoint key={index} coord={aCoord}/>;
-            })}
+            </MovableLine>;
+        };
+
+        return <Graphie
+                ref="graphie"
+                box={this.props.graph.box}
+                range={graphProps.range}
+                labels={graphProps.labels}
+                options={graphProps}
+                setup={this.setupGraphie} >
+            {lineComponents}
+            {pointCoordComponents}
         </Graphie>;
     },
 
@@ -82,12 +126,15 @@ var PlottedLineWidget = React.createClass({
             console.error("Failed to parse " + expression);
             return;
         }
+        var scale = this.savedGraphie.scale;
+        var range = this.savedGraphie.range;
+        var rangeX = range[0];
+        var dimensions = this.savedGraphie.dimensions;
         var points = [];
-        for (var i = 0; i <= 400; i += 10) {
-            var yValue = expr.expr.eval({x: i});
-            if (yValue) {
-                points.push(i);
-                points.push(yValue);
+        for (var x = rangeX[0]; x <= rangeX[1]; x += (rangeX[1] - rangeX[0]) / 100) {
+            var y = expr.expr.eval({x: x});
+            if (y) {
+                points.push([x, y]);
             }
         }
         this.updatePointwiseGraph(points);
@@ -212,7 +259,6 @@ var PlottedLineWidgetEditor = React.createClass({
         }
     }
 });
-
 
 /**
  * For this widget to work, we must export it.
