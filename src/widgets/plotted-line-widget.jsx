@@ -25,6 +25,7 @@ var propDefaults = {
     // user has interacted with this widget yet when grading it
     coord: null,
     pointCoords: [],
+    pointGraph: "",
     lineCoords: [],
     graph: {
         box: [defaultBoxSize, defaultBoxSize],
@@ -143,6 +144,15 @@ var PlottedLineWidget = React.createClass({
         var newPath = this.savedGraphie.svgPointwisePath(points);
         this.smoothGraph.attr({ path: newPath });
     },
+    updatePointGraph: function() {
+        if (this.props.pointGraph == "curve") {
+            var newPath = this.savedGraphie.svgPointwisePath(this.props.pointCoords);
+            this.pointGraphPath.attr({ path: newPath });
+        } else if (this.props.pointGraph == "line") {
+            var newPath = this.savedGraphie.path(this.props.pointCoords);
+            this.pointGraphPath.attr({ path: newPath });
+        }
+    },
     moveLine: function(newLinePair) {
         this.change({
             lineCoords: newLinePair
@@ -181,6 +191,12 @@ var PlottedLineWidget = React.createClass({
         graphie.label([0, options.range[1][1]], options.labels[1], "above");
         this.savedGraphie = graphie;
         this.smoothGraph = graphie.pointwise([]);
+        this.pointGraphPath = graphie.pointwise([]);
+        try {
+            this.updatePointGraph();
+        } catch (e) {
+            console.log(e);
+        }
     },
 
     simpleValidate: function(rubric) {
