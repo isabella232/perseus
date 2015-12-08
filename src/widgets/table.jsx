@@ -46,6 +46,7 @@ var Table = React.createClass({
     propTypes: {
         editableHeaders: React.PropTypes.bool,
         headers: React.PropTypes.arrayOf(React.PropTypes.string),
+        inputTypes: React.PropTypes.arrayOf(React.PropTypes.string),
         answers: React.PropTypes.arrayOf(
             React.PropTypes.arrayOf(
                 React.PropTypes.string
@@ -62,6 +63,7 @@ var Table = React.createClass({
         return {
             apiOptions: ApiOptions.defaults,
             headers: [""],
+            inputTypes: [],
             editableHeaders: false,
             rows: defaultRows,
             columns: defaultColumns,
@@ -121,7 +123,7 @@ var Table = React.createClass({
                             return <td key={c}>
                                 <InputComponent
                                     ref={getRefForPath(getInputPath(r, c))}
-                                    type="text"
+                                    type={this.props.inputTypes[c] || "text" }
                                     value={this.props.answers[r][c]}
                                     onFocus={_.partial(
                                         this._handleFocus, getInputPath(r, c)
@@ -306,6 +308,7 @@ var TableEditor = React.createClass({
         rows: React.PropTypes.number,
         columns: React.PropTypes.number,
         headers: React.PropTypes.arrayOf(React.PropTypes.string),
+        inputTypes: React.PropTypes.arrayOf(React.PropTypes.string),
         answers: React.PropTypes.arrayOf(
             React.PropTypes.arrayOf(
                 React.PropTypes.string
@@ -322,6 +325,7 @@ var TableEditor = React.createClass({
         });
         return {
             headers: [""],
+            inputTypes: [],
             rows: defaultRows,
             columns: defaultColumns,
             answers: blankAnswers
@@ -336,7 +340,7 @@ var TableEditor = React.createClass({
         var rows = this.props.rows;
         var cols = this.props.columns;
 
-        var tableProps = _.pick(this.props, "headers", "answers", "onChange");
+        var tableProps = _.pick(this.props, "headers", "inputTypes", "answers", "onChange");
         _.extend(tableProps, {
             editableHeaders: true
         });
@@ -429,7 +433,7 @@ var TableEditor = React.createClass({
     },
 
     serialize: function() {
-        var json = _.pick(this.props, "headers", "rows", "columns");
+        var json = _.pick(this.props, "headers", "inputTypes", "rows", "columns");
 
         return _.extend({}, json, {
             answers: _.map(this.props.answers, _.clone)
