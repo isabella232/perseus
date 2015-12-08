@@ -176,13 +176,25 @@ var PlottedLineWidget = React.createClass({
         });
     },
 
+    _slimLabel: function(s) {
+        s = parseFloat(s.toPrecision(7));
+        var slim = s.toString();
+        if (slim.length > 7) {
+            var digits = s.toExponential(2).split("e");
+            var exponent = digits[1];
+            //minus sign spacing is strange, perhaps mistaken for operator
+            slim = digits[0] + "\\scriptsize E{" + exponent.substring(0,1) + "}" + exponent.substring(1);
+        }
+        return "\\small{" + slim + "}";
+    },
+
     setupGraphie: function(graphie, options) {
         var gridConfig = this._getGridConfig(options);
         graphie.graphInit({
             range: options.range,
             scale: _.pluck(gridConfig, "scale"),
             axisArrows: "<->",
-            labelFormat: function(s) { return "\\small{" + s + "}"; },
+            labelFormat: this._slimLabel,
             gridStep: options.gridStep,
             tickStep: _.pluck(gridConfig, "tickStep"),
             labelStep: 1,
