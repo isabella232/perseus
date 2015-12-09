@@ -182,8 +182,12 @@ var PlottedLineWidget = React.createClass({
         if (slim.length > 7) {
             var digits = s.toExponential(2).split("e");
             var exponent = digits[1];
-            //minus sign spacing is strange, perhaps mistaken for operator
-            slim = digits[0] + "\\scriptsize E{" + exponent.substring(0,1) + "}" + exponent.substring(1);
+            if (Math.abs(exponent) > 2) {
+                //minus sign spacing is strange, perhaps mistaken for operator
+                slim = digits[0] + "\\scriptsize E{" + exponent.substring(0,1) + "}" + exponent.substring(1);
+            } else {
+                slim = s.toPrecision(3);
+            }
         }
         return "\\small{" + slim + "}";
     },
