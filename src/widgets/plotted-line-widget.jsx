@@ -122,8 +122,8 @@ var PlottedLineWidget = React.createClass({
         if (!expression) {
             return;
         }
-        var expr = KAS.parse(expression);
-        if (!expr || !expr.expr) {
+        var parsed = KAS.parse(expression);
+        if (!parsed || !parsed.expr) {
             console.error("Failed to parse " + expression);
             return;
         }
@@ -132,8 +132,11 @@ var PlottedLineWidget = React.createClass({
         var rangeX = range[0];
         var dimensions = this.savedGraphie.dimensions;
         var points = [];
+        var graphVariable = parsed.expr.getVars()[0];
         for (var x = rangeX[0]; x <= rangeX[1]; x += (rangeX[1] - rangeX[0]) / 100) {
-            var y = expr.expr.eval({x: x});
+            var input = {};
+            input[graphVariable] = x;
+            var y = parsed.expr.eval(input);
             if (y) {
                 points.push([x, y]);
             }
