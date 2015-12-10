@@ -124,6 +124,7 @@ var Table = React.createClass({
                                 <InputComponent
                                     ref={getRefForPath(getInputPath(r, c))}
                                     type={this.props.inputTypes[c] || "text" }
+                                    step={this.props.inputTypes[c] == "number" ? "any" : null }
                                     value={this.props.answers[r][c]}
                                     onFocus={_.partial(
                                         this._handleFocus, getInputPath(r, c)
