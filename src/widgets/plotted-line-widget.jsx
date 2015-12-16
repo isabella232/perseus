@@ -64,6 +64,7 @@ var PlottedLineWidget = React.createClass({
             box: this.props.box,
             range: this.props.range,
             labels: this.props.labels,
+            title: this.props.title,
             step: this.props.step,
             gridStep: this.props.gridStep,
             snapStep: this.props.snapStep,
@@ -207,7 +208,16 @@ var PlottedLineWidget = React.createClass({
             labelStep: 1,
             unityLabels: _.pluck(gridConfig, "unityLabel")
         });
-        graphie.label([0, options.range[1][1]], options.labels[1], "above");
+
+        graphie.label([options.range[0][0], options.range[1][1]], options.labels[1],
+            "above");
+        graphie.label([options.range[0][1], 0], options.labels[0],
+            "right");
+        if (options.title) {
+            graphie.label([(options.range[0][0] + options.range[0][1]) / 2, options.range[1][1]], options.title,
+            "center");
+        }
+
         this.savedGraphie = graphie;
         this.smoothGraph = graphie.pointwise([]);
         this.pointGraphPath = graphie.pointwise([]);
