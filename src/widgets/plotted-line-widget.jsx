@@ -213,7 +213,7 @@ var PlottedLineWidget = React.createClass({
         graphie.label([options.range[0][1], 0], options.labels[0], "right");
         graphie.label([yLabelPosition, options.range[1][1]], options.labels[1], "above");
         if (options.title) {
-            graphie.label([(options.range[0][0] + options.range[0][1]) / 2, options.range[1][1]],
+            graphie.label([(yLabelPosition + options.range[0][1]) / 2, options.range[1][1]],
                 options.title, "center");
         }
 
