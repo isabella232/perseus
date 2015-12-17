@@ -209,13 +209,12 @@ var PlottedLineWidget = React.createClass({
             unityLabels: _.pluck(gridConfig, "unityLabel")
         });
 
-        graphie.label([options.range[0][0], options.range[1][1]], options.labels[1],
-            "above");
-        graphie.label([options.range[0][1], 0], options.labels[0],
-            "right");
+        var yLabelPosition = ((options.range[0][0] <= 0) && (0 <= options.range[0][1])) ? 0 : options.range[0][0];
+        graphie.label([options.range[0][1], 0], options.labels[0], "right");
+        graphie.label([yLabelPosition, options.range[1][1]], options.labels[1], "above");
         if (options.title) {
-            graphie.label([(options.range[0][0] + options.range[0][1]) / 2, options.range[1][1]], options.title,
-            "center");
+            graphie.label([(options.range[0][0] + options.range[0][1]) / 2, options.range[1][1]],
+                options.title, "center");
         }
 
         this.savedGraphie = graphie;
