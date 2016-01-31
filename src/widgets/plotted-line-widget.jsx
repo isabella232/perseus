@@ -11,7 +11,9 @@ var Changeable = require("../mixins/changeable.jsx");
 var EditorJsonify = require("../mixins/editor-jsonify.jsx");
 var WidgetJsonifyDeprecated = require("../mixins/widget-jsonify-deprecated.jsx");
 
+var MultiButtonGroup = require("react-components/multi-button-group.jsx");
 var Graphie = require("../components/graphie.jsx");
+var GraphSettings = require("../components/graph-settings.jsx");
 var MovablePoint = Graphie.MovablePoint;
 var MovableLine = Graphie.MovableLine;
 
@@ -27,6 +29,8 @@ var propDefaults = {
     pointCoords: [],
     pointGraph: "",
     lineCoords: [],
+    style: "",
+    styleClass: "",
     graph: {
         box: [defaultBoxSize, defaultBoxSize],
         labels: ["x", "y"],
@@ -59,23 +63,8 @@ var PlottedLineWidget = React.createClass({
     },
 
     render: function() {
-        var graphProps = {
-            ref: "graph",
-            box: this.props.box,
-            range: this.props.range,
-            labels: this.props.labels,
-            title: this.props.title,
-            step: this.props.step,
-            gridStep: this.props.gridStep,
-            snapStep: this.props.snapStep,
-            graph: this.props.correct,
-            backgroundImage: this.props.backgroundImage,
-            markings: this.props.markings,
-            showProtractor: this.props.showProtractor,
-            showRuler: this.props.showRuler,
-            rulerLabel: this.props.rulerLabel,
-            rulerTicks: this.props.rulerTicks,
-            flexibleType: true,
+
+        var extraGraphProps = {
             onChange: (newProps) => {
                 var correct = this.props.correct;
                 if (correct.type === newProps.graph.type) {
@@ -85,9 +74,10 @@ var PlottedLineWidget = React.createClass({
                     correct = newProps.graph;
                 }
                 this.props.onChange({correct: correct});
-            }
+            },
+            title: this.props.title,
         }
-        _.defaults(graphProps, propDefaults.graph);
+        var graphProps = _.extend({}, propDefaults.graph, this.props.graph, extraGraphProps);
 
         var pointCoordComponents = null;
         if (this.props.pointCoords.length > 0) {
@@ -109,10 +99,8 @@ var PlottedLineWidget = React.createClass({
 
         return <Graphie
                 ref="graphie"
-                box={this.props.graph.box}
-                range={graphProps.range}
-                labels={graphProps.labels}
                 options={graphProps}
+                box={this.props.graph.box}
                 setup={this.setupGraphie} >
             {lineComponents}
             {pointCoordComponents}
@@ -263,7 +251,6 @@ _.extend(PlottedLineWidget, {
     }
 });
 
-
 /**
  * This is the widget's editor. This is what shows up on the left side
  * of the screen in test.html. Only the question writer sees this.
@@ -287,13 +274,83 @@ var PlottedLineWidgetEditor = React.createClass({
             }
         };
     },
+    
+    changeLabel: function(i, e) {
+        var labels = _.clone(this.props.labels);
+        labels[i] = e.target.value;
+        this.props.onChange({labels: labels});
+    },
+
+    changePointGraph: function(e) {
+        this.props.onChange({
+            pointGraph: e.target.value
+        });
+    },
+
+    changeTitle: function(e) {
+        this.props.onChange({
+            title: e.target.value
+        });
+    },
+
+    changeStyle: function(e) {
+        this.props.onChange({
+            style: e.target.value
+        });
+    },
+
+    changeStyleClass: function(e) {
+        this.props.onChange({
+            styleClass: e.target.value
+        });
+    },
 
     render: function() {
         return <div>
-            <PlottedLineWidget
-                graph={this.props.graph}
-                coord={this.props.correct}
-                onChange={this.handleChange} />
+            <GraphSettings
+                editableSettings={["graph", "snap", "image"]}
+                box={this.props.graph.box}
+                range={this.props.graph.range}
+                labels={this.props.graph.labels}
+                step={this.props.graph.step}
+                gridStep={this.props.graph.gridStep}
+                snapStep={this.props.graph.snapStep}
+                valid={this.props.graph.valid}
+                markings={this.props.graph.markings}
+                rulerLabel={this.props.graph.rulerLabel}
+                rulerTicks={this.props.graph.rulerTicks}
+                onChange={this.change("graph")} />
+            <div className="perseus-widget-row">
+                <label>Available functions:{' '} </label>
+            </div>
+            <div >
+                <label>Title:{' '}
+                    <input type="text"
+                        onChange={this.changeTitle}
+                        defaultValue={this.props.title} />
+                </label>
+            </div>
+            <div >
+                <label>Graph fit style:{' '}
+                    <input type="text"
+                        onChange={this.changePointGraph}
+                        defaultValue={this.props.pointGraph} />
+                </label>
+            </div>
+            <div >
+                <label>Widget style:{' '}
+                    <input type="text"
+                        onChange={this.changeStyle}
+                        defaultValue={this.props.style} />
+                </label>
+            </div>
+            <div >
+                <label>Widget style class:{' '}
+                    <input type="text"
+                        onChange={this.changeStyleClass}
+                        defaultValue={this.props.styleClass} />
+                </label>
+            </div>
         </div>;
     },
 
